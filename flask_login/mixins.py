@@ -7,6 +7,9 @@
 
 
 from ._compat import PY2, text_type
+# !!!SPLICE =+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+
+from django.splice.identity import get_taint_from_id
+# =+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+
 
 
 class UserMixin(object):
@@ -37,6 +40,19 @@ class UserMixin(object):
             return text_type(self.id)
         except AttributeError:
             raise NotImplementedError('No `id` attribute - override `get_id`')
+
+    # !!!SPLICE =+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+
+    def get_taint(self):
+        """
+        Computes a user's unique taint from user ID
+        :return: an int taint
+        """
+        try:
+            return self.taint
+        except AttributeError:
+            self.taint = get_taint_from_id(self.id)
+            return self.taint
+    # +=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+==+=+=+=+
 
     def __eq__(self, other):
         '''

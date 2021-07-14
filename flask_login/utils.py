@@ -20,6 +20,10 @@ from ._compat import text_type, urlparse, urlunparse
 from .config import COOKIE_NAME, EXEMPT_METHODS
 from .signals import user_logged_in, user_logged_out, user_login_confirmed
 
+# !!!SPLICE =+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+
+from django.splice.splice import SpliceMixin
+from werkzeug.datastructures import ImmutableMultiDict
+# =+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+
 
 #: A proxy for the current user. If no user is logged in, this will be an
 #: anonymous user
@@ -174,6 +178,10 @@ def login_user(user, remember=False, duration=None, force=False, fresh=True):
     session['_fresh'] = fresh
     session['_id'] = current_app.login_manager._session_identifier_generator()
 
+    # !!!SPLICE =+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+
+    session['_taint'] = getattr(user, current_app.login_manager.taint_attribute)()
+    # =+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+
+
     if remember:
         session['_remember'] = 'set'
         if duration is not None:
@@ -208,6 +216,11 @@ def logout_user():
 
     if '_id' in session:
         session.pop('_id')
+
+    # !!!SPLICE =+=+=+=+=+=+=
+    if '_taint' in session:
+        session.pop('_taint')
+    # =+=+=+=+=+=+=+=+=+=+=+=
 
     cookie_name = current_app.config.get('REMEMBER_COOKIE_NAME', COOKIE_NAME)
     if cookie_name in request.cookies:
@@ -272,6 +285,16 @@ def login_required(func):
             return func(*args, **kwargs)
         elif not current_user.is_authenticated:
             return current_app.login_manager.unauthorized()
+        # !!!SPLICE =+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=
+        # If a user must be logged in to run a function, we
+        # should then taint request data from user input.
+        request_dict = request.form.to_dict()
+        for key, val in request_dict.items():
+            request_dict[key] = SpliceMixin.to_splice(val, trusted=True, synthesized=False,
+                                                      taints=current_user.get_taint(),
+                                                      constraints=None)
+        request.form = ImmutableMultiDict(request_dict)
+        # =+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=
         return func(*args, **kwargs)
     return decorated_view
 

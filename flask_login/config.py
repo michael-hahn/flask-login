@@ -40,6 +40,11 @@ REFRESH_MESSAGE_CATEGORY = 'message'
 #: The default attribute to retreive the unicode id of the user
 ID_ATTRIBUTE = 'get_id'
 
+# !!!SPLICE =+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+
+#: The default attribute to retreive the taint of the user
+TAINT_ATTRIBUTE = 'get_taint'
+# =+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+
+
 #: Default name of the auth header (``Authorization``)
 AUTH_HEADER_NAME = 'Authorization'
 
@@ -52,6 +57,9 @@ SESSION_KEYS = set([
     '_id',
     '_fresh',
     'next',
+    # !!!SPLICE =+
+    '_taint',
+    # =+=+=+=+=+=+
 ])
 
 #: A set of HTTP methods which are exempt from `login_required` and

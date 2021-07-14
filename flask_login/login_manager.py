@@ -17,6 +17,7 @@ from .config import (COOKIE_NAME, COOKIE_DURATION, COOKIE_SECURE,
                      COOKIE_HTTPONLY, COOKIE_SAMESITE, LOGIN_MESSAGE,
                      LOGIN_MESSAGE_CATEGORY, REFRESH_MESSAGE,
                      REFRESH_MESSAGE_CATEGORY, ID_ATTRIBUTE,
+                     TAINT_ATTRIBUTE,   # !!!SPLICE
                      AUTH_HEADER_NAME, SESSION_KEYS, USE_SESSION_FOR_NEXT)
 from .mixins import AnonymousUserMixin
 from .signals import (user_loaded_from_cookie, user_loaded_from_header,
@@ -81,6 +82,10 @@ class LoginManager(object):
         self.needs_refresh_callback = None
 
         self.id_attribute = ID_ATTRIBUTE
+
+        # !!!SPLICE =+=+=+=+=+=+=+=+=+=+=+=+=+
+        self.taint_attribute = TAINT_ATTRIBUTE
+        # =+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+
 
         self._user_callback = None
 

@@ -50,7 +50,7 @@ class UserMixin(object):
         try:
             return self.taint
         except AttributeError:
-            self.taint = get_taint_from_id(self.id)
+            self.taint = get_taint_from_id(hash(self.get_id()))
             return self.taint
     # +=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+==+=+=+=+
 

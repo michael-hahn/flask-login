@@ -285,16 +285,16 @@ def login_required(func):
             return func(*args, **kwargs)
         elif not current_user.is_authenticated:
             return current_app.login_manager.unauthorized()
-        # !!!SPLICE =+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=
-        # If a user must be logged in to run a function, we
-        # should then taint request data from user input.
+        # !!!SPLICE =+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+
+        # If a user must be logged in to run a function, we should then taint request data
+        # from user input. Before validation, request data is considered to be *untrusted*.
         request_dict = request.form.to_dict()
         for key, val in request_dict.items():
-            request_dict[key] = SpliceMixin.to_splice(val, trusted=True, synthesized=False,
+            request_dict[key] = SpliceMixin.to_splice(val, trusted=False, synthesized=False,
                                                       taints=current_user.get_taint(),
                                                       constraints=None)
         request.form = ImmutableMultiDict(request_dict)
-        # =+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=
+        # =+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+
         return func(*args, **kwargs)
     return decorated_view
 

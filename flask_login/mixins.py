@@ -50,8 +50,7 @@ class UserMixin(object):
         try:
             return self.taint
         except AttributeError:
-            self.taint = get_taint_from_id(self.id)
-            return self.taint
+            raise NotImplementedError('No `taint` attribute - override `get_taint`')
     # +=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+==+=+=+=+
 
     def __eq__(self, other):
